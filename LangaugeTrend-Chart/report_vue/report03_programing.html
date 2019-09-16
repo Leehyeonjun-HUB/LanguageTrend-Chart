@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type='text/javascript' src='https://www.gstatic.com/charts/loader.js'></script>
+    <title>전세계 java</title>
+</head>
+
+<body>
+    <div id="app">
+        <br>
+        <button v-on:click='Java()'>Java</button>
+        <button v-on:click='Python()'>Python</button>
+        <button v-on:click='C()'>C</button>
+        <button v-on:click='JavaScript()'>JavaScript</button>
+        <button v-on:click='getData()'>그리기</button>
+        <br>
+        {{massage2}}
+    </div>
+    <script type="text/javascript">
+        google.charts.load('current', {
+            'packages': ['geochart'],
+            'mapsApiKey': 'AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY'
+        });
+
+        let pl = "";
+        Vue.config.devtools = true;
+        new Vue({
+            el: "#app",
+            data: {
+                pln: "Java, Python, C, JavaScript",
+                massage2: ""
+            },
+            methods: {
+                Java: function (data) {
+                    pl = "Java";
+                    this.massage2 = pl;
+                },
+                Python: function (data) {
+                    pl = "Python";
+                    this.massage2 = pl;
+                },
+                C: function (data) {
+                    pl = "C";
+                    this.massage2 = pl;
+                },
+                JavaScript: function (data) {
+                    pl = "JavaScript";
+                    this.massage2 = pl;
+                },
+                getData: function getData(data) {
+                    let world = [];
+                    axios.get("http://192.168.22.138:8080/report_vue/location.jsp")
+                    .then(function (resData) {
+                        if (pl == "Java") {
+                            world.push(Array('Country', 'Java'));
+                            resData.data.forEach(element => {
+                                world.push(Array(element.Country, element.Java));
+                            });
+                        } else if (pl == "Python") {
+                            world.push(Array('Country', 'Python'));
+                            resData.data.forEach(element => {
+                                world.push(Array(element.Country, element.Python));
+                            });
+                        } else if (pl == "C") {
+                            world.push(Array('Country', 'C'));
+                            resData.data.forEach(element => {
+                                world.push(Array(element.Country, element.C));
+                            });
+                        } else if (pl == "JavaScript") {
+                            world.push(Array('Country', 'JavaScript'));
+                            resData.data.forEach(element => {
+                                world.push(Array(element.Country, element.JavaScript));
+                            });
+                        }
+
+                        google.charts.setOnLoadCallback(drawRegionsMap);
+
+                    }).catch(error => {
+                        console.log("error", error);
+                    });
+                    drawRegionsMap: function drawRegionsMap() {
+                        var options = {};
+                        var gdata = google.visualization.arrayToDataTable(world);
+                        var chart = new google.visualization.GeoChart(document.getElementById('chart_div'));
+                        chart.draw(gdata, options);
+                    };
+                }
+            },
+            watch: {
+                massage2: function (data) {
+                    console.log(data);
+                }
+            }
+        })
+    </script>
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+</body>
+
+</html>

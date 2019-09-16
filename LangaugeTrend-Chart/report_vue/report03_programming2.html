@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://vuejs.org/js/vue.js"></script>
+    <script src="https://unpkg.com/axios@0.19.0/dist/axios.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <button v-on:click='getData()'>차트 그리기</button>
+    </div>
+    <script type="text/javascript">
+        google.charts.load('current', { 'packages': ['corechart'] });
+
+        function drawChart(dataArray) {
+            let data = google.visualization.arrayToDataTable(dataArray);
+            let options = {
+                title: 'programing language',
+                curveType: 'function',
+                legend: { position: 'bottom' }
+            };
+            var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+            chart.draw(data, options);
+        }
+
+        new Vue({
+            el: "#app",
+            data: {
+                dataArray: []
+            },
+            methods: {
+                getData: function getData() {
+                    let dataArray = [];
+                    axios.post("http://192.168.22.138:8080/report_vue/5year.jsp")
+                        .then(resData => {
+                            dataArray.push(['year', 'java', 'python', 'C', 'javascript']);
+                            let data = resData.data
+                            data.forEach(element => {
+                                dataArray.push([element.year, element.java, element.python, element.C, element.javascript]);
+                                console.log(dataArray);
+
+                            });
+                            drawChart(dataArray);
+                        }).catch(error => {
+                            console.log("비정상응답", error);
+                        });
+                }
+            }
+        });
+    </script>
+
+    </script>
+    <div id="curve_chart" style="width: 1000px; height: 500px"></div>
+
+</body>
+
+</html>
